@@ -1,0 +1,16 @@
+server:
+  port: 8081
+
+spring:
+  data:
+    mongodb:
+      database: dms
+      host: localhost
+      port: 27017
+
+endpoints:
+  createworkspace: /api/workspace/create
+  deleteworkspace: /api/workspace/delete
+  updateworkspace: /api/workspace/update
+  getworkspace: /api/workspace
+
