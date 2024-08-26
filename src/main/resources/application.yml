@@ -8,9 +8,16 @@ spring:
       host: localhost
       port: 27017
 
-endpoints:
-  createworkspace: /api/workspace/create
-  deleteworkspace: /api/workspace/delete
-  updateworkspace: /api/workspace/update
-  getworkspace: /api/workspace
+app:
+  config:
+    workspace:
+      base-uri: /api/workspace
+      api:
+        delete-workspace-by-id: /delete/{id}
+        update-workspace: /update
+
+
+
+jwt:
+  secret: oWxiA4J+s34cHVbcwhYIcN5P0xq9CjYAkUz/ai3Wh8Q=
 

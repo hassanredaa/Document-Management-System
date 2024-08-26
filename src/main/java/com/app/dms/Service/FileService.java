@@ -1,4 +1,7 @@
 package com.app.dms.Service;
 
-public interface FileService {
+import org.springframework.stereotype.Service;
+
+@Service
+public class FileService {
 }
