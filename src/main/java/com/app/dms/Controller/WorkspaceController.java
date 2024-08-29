@@ -2,6 +2,7 @@ package com.app.dms.Controller;
 
 
 import com.app.dms.Entity.Workspace;
+import com.app.dms.Requests.WorkspaceRequest;
 import com.app.dms.Service.WorkspaceService;
 import jakarta.servlet.http.HttpServletRequest;
 import netscape.javascript.JSObject;
@@ -22,8 +23,8 @@ public class WorkspaceController {
     private WorkspaceService workspaceService;
 
     @PostMapping("")
-    public ResponseEntity<Workspace> createWorkspace(@RequestBody String name, Authentication authentication) {
-        return workspaceService.createWorkspace(name ,(String) authentication.getPrincipal());
+    public ResponseEntity<Workspace> createWorkspace(@RequestBody WorkspaceRequest workspaceRequest, Authentication authentication) {
+        return workspaceService.createWorkspace(workspaceRequest.name,(String) authentication.getPrincipal());
     }
 
     @DeleteMapping("${app.config.workspace.api.delete-workspace-by-id}")

@@ -17,6 +17,9 @@ public class WorkspaceService {
     @Autowired
     private WorkSpaceRepository workSpaceRepository;
 
+    @Autowired
+    private DirectoryService directoryService;
+
 
     public Workspace getWorkspaceById(String id) {
 
@@ -36,7 +39,10 @@ public class WorkspaceService {
         if(workSpaceRepository.findByUserIdAndName(id ,name).isPresent()){
             throw new DbExceptions("Workspace already exists");
         }
-        return new ResponseEntity<>(workSpaceRepository.save(new Workspace(id,name)), HttpStatus.CREATED);
+        Workspace workspace = new Workspace(id, name);
+        workspace = workSpaceRepository.save(workspace);
+        directoryService.createDirectory(name, workspace.getId(),null,id);
+        return new ResponseEntity<>(workspace, HttpStatus.CREATED);
     }
 
     public ResponseEntity<Workspace> updateWorkspace(String name,String workspace_id ,String user_id) {

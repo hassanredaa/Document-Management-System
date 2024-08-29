@@ -7,6 +7,18 @@ spring:
       database: dms
       host: localhost
       port: 27017
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+        http: DEBUG
 
 app:
   config:
@@ -15,8 +27,18 @@ app:
       api:
         delete-workspace-by-id: /delete/{id}
         update-workspace: /update
+    directory:
+      base-uri: /api/directory
+      api:
+        create-directory: /create
+        get-directory: /{id}
+        get-subdirectories: /subdirectories/{id}
+    document:
+      base-uri: /api/document
+      api:
 
 
+storage: C:\Users\hassa\OneDrive\Desktop\Db\
 
 jwt:
   secret: oWxiA4J+s34cHVbcwhYIcN5P0xq9CjYAkUz/ai3Wh8Q=
