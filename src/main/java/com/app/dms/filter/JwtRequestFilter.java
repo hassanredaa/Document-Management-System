@@ -48,8 +48,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (token != null && jwtTokenUtil.validateToken(token)) {
             Claims claims = jwtTokenUtil.getClaimsFromToken(token);
             String userId = claims.getId();
+            String firstName = claims.get("firstName", String.class);
+            String lastName = claims.get("lastName", String.class);
+
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+            authenticationToken.setDetails(Map.of("firstName", firstName, "lastName", lastName));
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             log.info("JWT Filter test");
 

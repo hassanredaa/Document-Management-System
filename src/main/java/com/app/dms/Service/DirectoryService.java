@@ -32,7 +32,7 @@ public class DirectoryService {
         }
         else{
             directory.setWorkspaceId(workspaceId);
-            directory.setPath("${storage}" + createdBy + "\\" + name);
+            directory.setPath("C:\\Users\\hassa\\OneDrive\\Desktop\\Db\\" + createdBy + "\\" + name);
             new File(directory.getPath()).mkdirs();
             savedDirectory = directoryRepository.save(directory);
         }

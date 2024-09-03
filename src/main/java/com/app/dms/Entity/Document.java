@@ -13,8 +13,8 @@ public class Document {
     @Id
     private String id;
     private String name;
-    private String type;
     private String directoryId;
     private String ownerId;
     private String path;
+    private boolean isDeleted;
 }

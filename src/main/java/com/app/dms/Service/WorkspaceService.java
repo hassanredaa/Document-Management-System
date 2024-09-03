@@ -34,7 +34,6 @@ public class WorkspaceService {
         return new ResponseEntity<>(workSpaceRepository.findAllByUserId(id), HttpStatus.OK);
     }
 
-    //TODO: return dto
     public ResponseEntity<Workspace> createWorkspace(String name, String id) {
         if(workSpaceRepository.findByUserIdAndName(id ,name).isPresent()){
             throw new DbExceptions("Workspace already exists");

@@ -36,6 +36,13 @@ app:
     document:
       base-uri: /api/document
       api:
+        soft-delete: /delete
+        preview: /preview/{id}
+        workspace-documents: /getdoc/{workspaceId}
+    metadata:
+      base-uri: /api/metadata
+      api:
+        get-metadata: /{metadataId}
 
 
 storage: C:\Users\hassa\OneDrive\Desktop\Db\

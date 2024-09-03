@@ -23,4 +23,8 @@ public class Directory {
     private String path;
     private String createdBy;
 
+    public void addFile(String file) {
+        files.add(file);
+    }
+
 }
