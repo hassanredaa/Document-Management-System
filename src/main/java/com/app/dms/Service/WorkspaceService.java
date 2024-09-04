@@ -2,6 +2,7 @@ package com.app.dms.Service;
 
 import com.app.dms.Entity.Workspace;
 import com.app.dms.Repository.WorkSpaceRepository;
+import com.app.dms.Requests.DirectoryRequest;
 import com.app.dms.advice.DbExceptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,7 @@ public class WorkspaceService {
     public Workspace getWorkspaceById(String id) {
 
         Optional<Workspace> workspace = workSpaceRepository.findById(id);
-        if (!workspace.isPresent()) {
+        if (workspace.isEmpty()) {
             throw new DbExceptions("Workspace not found");
         }
         return workspace.get();
@@ -35,18 +36,19 @@ public class WorkspaceService {
     }
 
     public ResponseEntity<Workspace> createWorkspace(String name, String id) {
-        if(workSpaceRepository.findByUserIdAndName(id ,name).isPresent()){
-            throw new DbExceptions("Workspace already exists");
+        if(workSpaceRepository.findByUserIdAndName(id ,name.toLowerCase()).isPresent()){
+                throw new DbExceptions("Workspace name already exists");
         }
-        Workspace workspace = new Workspace(id, name);
+        Workspace workspace = new Workspace(id, name.toLowerCase());
         workspace = workSpaceRepository.save(workspace);
-        directoryService.createDirectory(name, workspace.getId(),null,id);
+        DirectoryRequest directoryRequest = new DirectoryRequest(name,workspace.getId(),null);
+        directoryService.createDirectory(directoryRequest,id);
         return new ResponseEntity<>(workspace, HttpStatus.CREATED);
     }
 
     public ResponseEntity<Workspace> updateWorkspace(String name,String workspace_id ,String user_id) {
         Optional<Workspace> workspace = workSpaceRepository.findById(workspace_id);
-        if (!workspace.isPresent()) {
+        if (workspace.isEmpty()) {
             throw new DbExceptions("Workspace not found");
         }
         if(workspace.get().getUserId().equals(user_id)){

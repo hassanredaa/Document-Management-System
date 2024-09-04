@@ -45,7 +45,8 @@ app:
         get-metadata: /{metadataId}
 
 
-storage: C:\Users\hassa\OneDrive\Desktop\Db\
+database:
+  storage: C:\\Users\\hassa\\OneDrive\\Desktop\\Db\\
 
 jwt:
   secret: oWxiA4J+s34cHVbcwhYIcN5P0xq9CjYAkUz/ai3Wh8Q=

@@ -16,7 +16,7 @@ public class Directory {
     @Id
     private String id;
     private String name;
-    private String parentId;
+    private String directoryParentId;
     private String workspaceId;
     private List<String> childDirectories = new ArrayList<>();
     private List<String> files = new ArrayList<>();

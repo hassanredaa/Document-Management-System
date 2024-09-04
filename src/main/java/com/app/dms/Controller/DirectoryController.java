@@ -20,7 +20,7 @@ public class DirectoryController {
 
     @PostMapping("${app.config.directory.api.create-directory}")
     public ResponseEntity<Directory> createDirectory(@RequestBody DirectoryRequest directoryRequest, Authentication authentication) {
-        Directory newDirectory = directoryService.createDirectory(directoryRequest.name, directoryRequest.workspaceId ,directoryRequest.parentId, (String) authentication.getPrincipal());
+        Directory newDirectory = directoryService.createDirectory(directoryRequest, (String) authentication.getPrincipal());
         return new ResponseEntity<Directory>(newDirectory,HttpStatus.CREATED);
     }
 

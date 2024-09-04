@@ -2,8 +2,10 @@ package com.app.dms.Service;
 
 import com.app.dms.Entity.Directory;
 import com.app.dms.Repository.DirectoryRepository;
+import com.app.dms.Requests.DirectoryRequest;
 import com.app.dms.advice.DbExceptions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -15,25 +17,28 @@ public class DirectoryService {
     @Autowired
     private DirectoryRepository directoryRepository;
 
-    public Directory createDirectory(String name,String workspaceId, String parentId, String createdBy) {
+    @Value("${database.storage}")
+    private String dbPath;
+
+    public Directory createDirectory(DirectoryRequest directoryRequest, String createdBy) {
         Directory directory = new Directory();
         Directory savedDirectory;
-        directory.setName(name);
+        directory.setName(directoryRequest.name);
         directory.setCreatedBy(createdBy);
 
-        if (parentId != null) {
-            directory.setParentId(parentId);
-            Directory parentDirectory = directoryRepository.findByIdOrWorkspaceId(parentId,parentId).get();
-            directory.setPath(parentDirectory.getPath() + "\\" + name);
+        if (directoryRequest.parentId != null) {
+            directory.setDirectoryParentId(directoryRequest.parentId);
+            Directory parentDirectory = directoryRepository.findByIdOrWorkspaceId(directoryRequest.parentId,directoryRequest.parentId).get();
+            directory.setPath(parentDirectory.getPath() + "\\" + directoryRequest.name);
             new File(directory.getPath()).mkdirs();
             savedDirectory = directoryRepository.save(directory);
             parentDirectory.getChildDirectories().add(savedDirectory.getId());
             directoryRepository.save(parentDirectory);
         }
         else{
-            directory.setWorkspaceId(workspaceId);
-            directory.setPath("C:\\Users\\hassa\\OneDrive\\Desktop\\Db\\" + createdBy + "\\" + name);
-            new File(directory.getPath()).mkdirs();
+            directory.setWorkspaceId(directoryRequest.workspaceId);
+            directory.setPath(createdBy + "\\" + directoryRequest.name);
+            new File(dbPath + createdBy + "\\" + directoryRequest.name).mkdirs();
             savedDirectory = directoryRepository.save(directory);
         }
 
@@ -45,7 +50,7 @@ public class DirectoryService {
     }
 
     public List<Directory> getSubdirectories(String parentId) {
-        return directoryRepository.findByParentId(parentId);
+        return directoryRepository.findByDirectoryParentId(parentId);
     }
 
 

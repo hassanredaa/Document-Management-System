@@ -2,7 +2,6 @@ package com.app.dms.Controller;
 
 import com.app.dms.Entity.Document;
 import com.app.dms.Requests.DocumentRequest;
-import com.app.dms.Requests.SearchRequest;
 import com.app.dms.Service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("${app.config.document.base-uri}")
@@ -23,13 +21,9 @@ public class DocumentController {
     private DocumentService documentService;
 
     @PostMapping(value = "" , consumes = "multipart/form-data")
-    public ResponseEntity uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("directory") String directoryId, Authentication auth) throws IOException {
-        Map<String, Object> details = (Map<String, Object>) auth.getDetails();
-        String firstName = (String) details.get("firstName");
-        String lastName = (String) details.get("lastName");
-        return new ResponseEntity(
-                documentService.upload(file, directoryId, (String) auth.getPrincipal(), firstName, lastName),
-                HttpStatus.OK);
+    public ResponseEntity uploadFile(@RequestParam("file") MultipartFile file,
+                                     @RequestParam("directory") String directoryId, Authentication auth) throws IOException {
+        return new ResponseEntity(documentService.upload(file, auth ,directoryId), HttpStatus.OK);
     }
 
     @GetMapping("")
@@ -53,8 +47,8 @@ public class DocumentController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Document>> searchDocument(@RequestBody SearchRequest searchRequest, Authentication auth) {
-        return new ResponseEntity<>(documentService.search((String) auth.getPrincipal(),searchRequest.name, searchRequest.type), HttpStatus.OK);
+    public ResponseEntity<List<Document>> searchDocument(@RequestParam("search") String searchTerm, Authentication auth) {
+        return new ResponseEntity<>(documentService.search((String) auth.getPrincipal(),searchTerm), HttpStatus.OK);
     }
 
 

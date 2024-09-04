@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DirectoryRepository extends MongoRepository<Directory, String> {
-    Optional<Directory> findByNameAndParentId(String name, String parentId);
     Optional<Directory> findByIdOrWorkspaceId(String id, String workspaceId);
-    List<Directory> findByParentId(String parentId);
+    List<Directory> findByDirectoryParentId(String parentId);
     Directory findByWorkspaceId(String workspaceId);
 
 

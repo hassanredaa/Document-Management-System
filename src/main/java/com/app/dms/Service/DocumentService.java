@@ -5,28 +5,24 @@ import com.app.dms.Entity.Document;
 import com.app.dms.Entity.Metadata;
 import com.app.dms.Repository.DirectoryRepository;
 import com.app.dms.Repository.DocumentRepository;
-import com.app.dms.Repository.MetadataRepository;
 import com.app.dms.advice.DbExceptions;
 import com.app.dms.advice.UnauthorizedException;
 import com.app.dms.response.DocumentPreviewResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.print.Doc;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -41,7 +37,15 @@ public class DocumentService {
     @Autowired
     private MetadataService metadataService;
 
-    public Document upload(MultipartFile file, String directoryId, String ownerId, String firstname, String lastname) throws IOException {
+    @Value("${database.storage}")
+    private String dbPath;
+
+    public Document upload(MultipartFile file, Authentication auth, String directoryId) throws IOException {
+        Map<String, Object> details = (Map<String, Object>) auth.getDetails();
+        String firstname = (String) details.get("firstName");
+        String lastname = (String) details.get("lastName");
+        String ownerId = (String) auth.getPrincipal();
+
         String directoryPath;
         Document document = new Document();
         Optional<Directory> directory = directoryRepository.findById(directoryId);
@@ -52,7 +56,8 @@ public class DocumentService {
             }
             for(String doc : directory.get().getFiles()){
                 Optional<Document> docTemp = documentRepository.findById(doc);
-                if (docTemp.isPresent() && docTemp.get().getName().equals(file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf('.')))) {
+                if (docTemp.isPresent() && docTemp.get().getName()
+                        .equals(file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf('.')))) {
                     throw new UnauthorizedException("Cannot have 2 documents with same filename");
                 }
             }
@@ -60,11 +65,11 @@ public class DocumentService {
             document.setDirectoryId(directoryId);
             document.setOwnerId(ownerId);
             document.setDeleted(false);
-            directoryPath = directory.get().getPath();
+            directoryPath = dbPath + directory.get().getPath();
             Path uploadPath = Paths.get(directoryPath);
             String fileName = file.getOriginalFilename();
             Path filePath = uploadPath.resolve(fileName);
-            document.setPath(filePath.toString());
+            document.setPath(directory.get().getPath() + "\\" + fileName);
             file.transferTo(filePath);
             document = documentRepository.save(document);
             Metadata metadata = new Metadata();
@@ -73,7 +78,8 @@ public class DocumentService {
             metadata.setOwnerLastName(lastname);
             metadata.setVersion(1);
             metadata.setTag("Document");
-            metadata.setDocumentType(file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1));
+            metadata.setDocumentType(file.getOriginalFilename()
+                    .substring(file.getOriginalFilename().lastIndexOf(".") + 1));
             metadataService.createMetadata(metadata);
             directory.get().addFile(document.getId());
             directoryRepository.save(directory.get());
@@ -89,7 +95,7 @@ public class DocumentService {
             if(!document.get().getOwnerId().equals(ownerId)) {
                 throw new UnauthorizedException("Not authorized");
             }
-            Path path = Paths.get(document.get().getPath());
+            Path path = Paths.get(dbPath + document.get().getPath());
             Resource resource = new UrlResource(path.toUri());
             if (resource.exists()) {
                 String contentType = Files.probeContentType(path);
@@ -129,7 +135,7 @@ public class DocumentService {
             if (!document.get().getOwnerId().equals(ownerId)) {
                 throw new UnauthorizedException("Not authorized");
             }
-            String filePath = document.get().getPath();
+            String filePath = dbPath + document.get().getPath();
             Path path = Paths.get(filePath);
             byte[] fileContent = Files.readAllBytes(path);
             base64Encoded = Base64.getEncoder().encodeToString(fileContent);
@@ -168,27 +174,21 @@ public class DocumentService {
         return documents;
     }
 
-    public List<Document> search(String ownerId, String name, String type){
+    public List<Document> search(String ownerId, String searchTerm){
         List<Document> documents = documentRepository.findByOwnerId(ownerId);
         List<Document> results = new ArrayList<>();
-        log.info(documents.toString());
         if(documents.isEmpty()) {
             return results;
         }
         for(Document document : documents) {
             Metadata metadata = metadataService.getMetadata(document.getId());
-            if(type == null && document.getName().toLowerCase().contains(name.toLowerCase()) ){
-                log.info("type is null");
-                results.add(document);
-            } else if (name == null && metadata.getDocumentType().toLowerCase().contains(type.toLowerCase())) {
-                results.add(document);
-            }
-            else if(name!=null && type!=null){
-                if(document.getName().toLowerCase().contains(name.toLowerCase()) || metadata.getDocumentType().toLowerCase().contains(type.toLowerCase())){
-                    results.add(document);
 
+                if(document.getName().toLowerCase().contains(searchTerm.toLowerCase()) ||
+                        metadata.getDocumentType().toLowerCase().contains(searchTerm.toLowerCase())) {
+                    if(!document.isDeleted()){
+                        results.add(document);
+                    }
                 }
-            }
         }
         return results;
     }
