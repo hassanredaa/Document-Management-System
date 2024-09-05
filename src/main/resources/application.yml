@@ -32,6 +32,7 @@ app:
       api:
         create-directory: /create
         get-directory: /{id}
+        get-directory-workspace: /workspace/{id}
         get-subdirectories: /subdirectories/{id}
     document:
       base-uri: /api/document

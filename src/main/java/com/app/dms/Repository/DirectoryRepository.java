@@ -10,6 +10,4 @@ public interface DirectoryRepository extends MongoRepository<Directory, String> 
     Optional<Directory> findByIdOrWorkspaceId(String id, String workspaceId);
     List<Directory> findByDirectoryParentId(String parentId);
     Directory findByWorkspaceId(String workspaceId);
-
-
 }

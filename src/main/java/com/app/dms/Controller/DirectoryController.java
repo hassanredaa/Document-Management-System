@@ -29,6 +29,11 @@ public class DirectoryController {
         return new ResponseEntity<Directory>(directoryService.findDirectoryById(id),HttpStatus.CREATED);
     }
 
+    @GetMapping("${app.config.directory.api.get-directory-workspace}")
+    public ResponseEntity<Directory> getDirectorybyWorkspaceId(@PathVariable String id) {
+        return new ResponseEntity<Directory>(directoryService.findDirectorybyWorkspaceId(id),HttpStatus.CREATED);
+    }
+
     @GetMapping("${app.config.directory.api.get-subdirectories}")
     public ResponseEntity<List<Directory>> getSubdirectories(@PathVariable String parentId) {
         List<Directory> subdirectories = directoryService.getSubdirectories(parentId);

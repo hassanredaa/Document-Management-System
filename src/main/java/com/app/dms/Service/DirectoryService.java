@@ -45,6 +45,10 @@ public class DirectoryService {
         return savedDirectory;
     }
 
+    public Directory findDirectorybyWorkspaceId(String id) {
+        return directoryRepository.findByWorkspaceId(id);
+    }
+
     public Directory findDirectoryById(String id) {
         return directoryRepository.findById(id).orElseThrow(() -> new DbExceptions("Not Found"));
     }

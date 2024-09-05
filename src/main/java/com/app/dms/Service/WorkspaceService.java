@@ -41,7 +41,7 @@ public class WorkspaceService {
         }
         Workspace workspace = new Workspace(id, name.toLowerCase());
         workspace = workSpaceRepository.save(workspace);
-        DirectoryRequest directoryRequest = new DirectoryRequest(name,workspace.getId(),null);
+        DirectoryRequest directoryRequest = new DirectoryRequest(name,null,workspace.getId());
         directoryService.createDirectory(directoryRequest,id);
         return new ResponseEntity<>(workspace, HttpStatus.CREATED);
     }
